@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Engine | Neumorphic AI</title>
+    <style>
+        :root {
+            /* Light Mode: Lavender + Neon Blue Glow */
+            --bg-color: #E6E6FA;
+            --text-color: #333333;
+            --accent-color: #00F3FF; 
+            --shadow-light: #ffffff;
+            --shadow-dark: #c1c1e0;
+            --neon-glow: rgba(0, 243, 255, 0.7);
+            --card-radius: 30px;
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode: Black + Neon Orange Glow */
+            --bg-color: #181818;
+            --text-color: #E0E0E0;
+            --accent-color: #FF6B00;
+            --shadow-light: #252525;
+            --shadow-dark: #0b0b0b;
+            --neon-glow: rgba(255, 107, 0, 0.8);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            position: relative;
+        }
+
+        /* --- Header & Theme Toggle --- */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 0 10px var(--neon-glow);
+        }
+
+        .theme-toggle {
+            width: 65px;
+            height: 35px;
+            border-radius: 20px;
+            background: var(--bg-color);
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light), 0 0 15px var(--neon-glow);
+            cursor: pointer;
+            position: relative;
+            border: none;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            transition: var(--transition);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            left: 35px;
+        }
+
+        .app-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            max-width: 650px;
+            font-weight: 500;
+        }
+
+        /* --- Remove Button --- */
+        .remove-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 900;
+            color: #ff4d4d;
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light), 0 0 10px rgba(255, 77, 77, 0.4);
+            border: none;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        [data-theme="dark"] .remove-btn {
+            color: var(--accent-color);
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light), 0 0 10px var(--neon-glow);
+        }
+
+        .remove-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light), 0 0 20px rgba(255, 77, 77, 0.6);
+        }
+
+        [data-theme="dark"] .remove-btn:hover {
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light), 0 0 20px var(--accent-color);
+        }
+
+        /* --- Upload Section --- */
+        .neu-card {
+            background: var(--bg-color);
+            border-radius: var(--card-radius);
+            padding: 40px;
+            position: relative; /* For X button positioning */
+            /* Multi-layered shadow: Neumorphic Lift + Neon Glow */
+            box-shadow: 
+                10px 10px 20px var(--shadow-dark), 
+                -10px -10px 20px var(--shadow-light),
+                0 0 35px var(--neon-glow),
+                0 0 10px var(--neon-glow);
+            transition: var(--transition);
+        }
+
+        .neu-card:hover {
+            box-shadow: 
+                12px 12px 25px var(--shadow-dark), 
+                -12px -12px 25px var(--shadow-light),
+                0 0 55px var(--neon-glow),
+                0 0 20px var(--neon-glow);
+        }
+
+        .neu-input-container {
+            padding: 30px;
+            border: 2px dashed var(--accent-color);
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .neu-input-container:hover {
+            background: rgba(var(--accent-color), 0.1);
+            box-shadow: inset 0 0 15px var(--neon-glow);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        button.neu-btn {
+            background: var(--bg-color);
+            border: none;
+            border-radius: 15px;
+            padding: 14px 30px;
+            font-weight: 700;
+            color: var(--text-color);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light), 0 0 10px var(--neon-glow);
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button.neu-btn:hover {
+            box-shadow: 7px 7px 15px var(--shadow-dark), -7px -7px 15px var(--shadow-light), 0 0 25px var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        button.neu-btn:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            transform: translateY(0);
+        }
+
+        input[type="text"].neu-input {
+            width: 100%;
+            background: var(--bg-color);
+            border: none;
+            border-radius: 15px;
+            padding: 18px;
+            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+            color: var(--text-color);
+            outline: none;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        input[type="text"].neu-input:focus {
+            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light), 0 0 15px var(--neon-glow);
+            border: 1px solid var(--accent-color);
+        }
+
+        /* --- Chat & Summary Animation --- */
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .visible-section {
+            display: block;
+            animation: slideUpFade 0.8s forwards ease-out;
+        }
+
+        @keyframes slideUpFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #chat-messages {
+            height: 350px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            padding-right: 15px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 20px;
+            max-width: 85%;
+            font-weight: 500;
+        }
+
+        .message.user {
+            background: var(--bg-color);
+            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light), 0 0 10px var(--neon-glow);
+            margin-left: auto;
+            border-right: 5px solid var(--accent-color);
+        }
+
+        .message.assistant {
+            background: var(--bg-color);
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .status-text {
+            font-weight: 700;
+            margin-top: 20px;
+            color: var(--accent-color);
+            text-shadow: 0 0 5px var(--neon-glow);
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; box-shadow: 0 0 5px var(--neon-glow); }
+
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="main-container">
+        <!-- Top: Header & Toggle -->
+        <div class="header-row">
+            <h1>PDF Engine</h1>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"></button>
+        </div>
+
+        <!-- Summary Paragraph -->
+        <p class="app-description">
+            Experience the next generation of document intelligence. 
+            Upload your PDF files to extract instant, high-fidelity AI summaries. 
+            Engage in seamless conversational loops with your data using Groq's high-speed inference. 
+            Designed for clarity, built for speed, and styled with soft-plastic neumorphism.
+        </p>
+
+        <!-- Upload Section -->
+        <div class="neu-card">
+            <button class="remove-btn" id="remove-btn" onclick="clearFile()">X</button>
+            <div class="neu-input-container" onclick="document.getElementById('pdf-file').click()" id="drop-zone">
+                <p id="file-label">Drag & Drop PDF or Click to Browse</p>
+                <input type="file" id="pdf-file" accept="application/pdf" onchange="handleFileSelect()">
+            </div>
+            <div style="margin-top: 25px; text-align: center;">
+                <button class="neu-btn" onclick="uploadPDF()">Upload & Summarize</button>
+                <div id="upload-status" class="status-text"></div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div id="summary-section" class="neu-card hidden-section">
+            <h3 style="margin-top: 0;">Document Summary</h3>
+            <div id="summary-content" style="white-space: pre-wrap;"></div>
+        </div>
+
+        <!-- Chat Section -->
+        <div id="chat-section" class="neu-card hidden-section">
+            <h3 style="margin-top: 0;">Chat with PDF</h3>
+            <div id="chat-messages"></div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <input type="text" id="chat-input" class="neu-input" placeholder="Ask a question about the PDF..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button class="neu-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Theme Management ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        initTheme();
+
+        // --- File Handling ---
+        function handleFileSelect() {
+            const fileInput = document.getElementById('pdf-file');
+            const file = fileInput.files[0];
+            const removeBtn = document.getElementById('remove-btn');
+            const fileLabel = document.getElementById('file-label');
+
+            if (file) {
+                fileLabel.innerText = `Selected: ${file.name}`;
+                removeBtn.style.display = 'flex';
+            } else {
+                fileLabel.innerText = 'Drag & Drop PDF or Click to Browse';
+                removeBtn.style.display = 'none';
+            }
+        }
+
+        async function clearFile() {
+            const fileInput = document.getElementById('pdf-file');
+            const statusDiv = document.getElementById('upload-status');
+            const summarySection = document.getElementById('summary-section');
+            const chatSection = document.getElementById('chat-section');
+            
+            fileInput.value = ''; // Clear input
+            statusDiv.innerText = ''; // Reset status
+            summarySection.classList.remove('visible-section'); // Hide sections
+            chatSection.classList.remove('visible-section');
+            handleFileSelect(); // Reset UI label
+
+            try {
+                await fetch('/clear-session', { method: 'POST' });
+            } catch (err) {
+                console.error('Failed to clear session:', err);
+            }
+        }
+
+        // --- Core Functions ---
+        async function uploadPDF() {
+            const fileInput = document.getElementById('pdf-file');
+            const statusDiv = document.getElementById('upload-status');
+            const summarySection = document.getElementById('summary-section');
+            const summaryContent = document.getElementById('summary-content');
+            const chatSection = document.getElementById('chat-section');
+
+            if (!fileInput.files[0]) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            statusDiv.innerText = 'Processing your document...';
+            const formData = new FormData();
+            formData.append('pdf', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.error) {
+                    statusDiv.innerText = 'Error: ' + data.error;
+                } else {
+                    statusDiv.innerText = 'Analysis Complete!';
+                    
+                    summaryContent.innerText = data.summary;
+                    summarySection.classList.add('visible-section');
+                    
+                    // Delay chat appearance slightly for flow
+                    setTimeout(() => {
+                        chatSection.classList.add('visible-section');
+                        document.getElementById('chat-messages').innerHTML = '';
+                    }, 400);
+                }
+            } catch (err) {
+                statusDiv.innerText = 'Error: ' + err.message;
+            }
+        }
+
+        async function sendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const question = chatInput.value.trim();
+
+            if (!question) return;
+
+            // Add user message
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'message user';
+            userMsgDiv.innerHTML = `<strong>You:</strong><br>${question}`;
+            chatMessages.appendChild(userMsgDiv);
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Add assistant placeholder
+            const assistantMsgDiv = document.createElement('div');
+            assistantMsgDiv.className = 'message assistant';
+            assistantMsgDiv.innerHTML = `<strong>Assistant:</strong><br><span class="content"></span>`;
+            chatMessages.appendChild(assistantMsgDiv);
+            const contentSpan = assistantMsgDiv.querySelector('.content');
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.slice(6).trim();
+                            if (dataStr === '[DONE]') break;
+                            try {
+                                const data = JSON.parse(dataStr);
+                                if (data.content) {
+                                    contentSpan.innerText += data.content;
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            } catch (err) {
+                contentSpan.innerText = 'Error: ' + err.message;
+            }
+        }
+
+        // Drag and Drop Logic
+        const dropZone = document.getElementById('drop-zone');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+        dropZone.addEventListener('drop', e => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            document.getElementById('pdf-file').files = files;
+            handleFileSelect();
+        }, false);
+    </script>
+</body>
+</html>
