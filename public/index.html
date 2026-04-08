@@ -173,6 +173,16 @@
             box-shadow: inset 0 0 15px var(--neon-glow);
         }
 
+        .file-limit-label {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
         input[type="file"] {
             display: none;
         }
@@ -293,8 +303,7 @@
         <p class="app-description">
             Experience the next generation of document intelligence. 
             Upload your PDF files to extract instant, high-fidelity AI summaries. 
-            Engage in seamless conversational loops with your data using Groq's high-speed inference. 
-            Designed for clarity, built for speed, and styled with soft-plastic neumorphism.
+            Engage in seamless conversational loops with your data using Llama 3.1 8B Instant.
         </p>
 
         <!-- Upload Section -->
@@ -304,6 +313,7 @@
                 <p id="file-label">Drag & Drop PDF or Click to Browse</p>
                 <input type="file" id="pdf-file" accept="application/pdf" onchange="handleFileSelect()">
             </div>
+            <span class="file-limit-label">Maximum file size: 50MB</span>
             <div style="margin-top: 25px; text-align: center;">
                 <button class="neu-btn" onclick="uploadPDF()">Upload & Summarize</button>
                 <div id="upload-status" class="status-text"></div>
