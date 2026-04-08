@@ -37,7 +37,7 @@ const upload = multer({
             cb(new Error('Only PDF files are allowed!'), false);
         }
     },
-    limits: { fileSize: 50 * 1024 * 1024 } // Optimized: 50MB limit
+    limits: { fileSize: 50 * 1024 * 1024 } // Strict 50MB limit
 });
 
 app.use(express.json());
@@ -85,7 +85,7 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
                 { role: 'system', content: 'You are PDF-Engine. Summarize the following document concisely based ONLY on its text.' },
                 { role: 'user', content: `Summarize this text:\n\n${summaryText}` }
             ],
-            model: 'llama-3-8b-8192', // Optimized for Render Free Tier
+            model: 'llama-3.1-8b-instant', // Finalized Active Model
         }).catch(err => {
             req.session.isProcessing = false;
             throw new Error('Groq API Error: ' + err.message);
@@ -127,10 +127,10 @@ app.post('/chat', async (req, res) => {
             ...req.session.chatHistory
         ];
 
-        console.log('Chat Request Started'); // Tracking log for Render
+        console.log('Chat Request Started'); 
         const stream = await groq.chat.completions.create({
             messages: messages,
-            model: 'llama-3-8b-8192', // Optimized for Render Free Tier
+            model: 'llama-3.1-8b-instant', // Finalized Active Model
             stream: true,
         }).catch(err => {
             throw new Error('Groq streaming failed: ' + err.message);
@@ -171,5 +171,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => {
+    console.log(`System initialized with Llama 3.1 8B Instant`);
     console.log(`PDF-Engine secured and running at http://localhost:${port}`);
 });
